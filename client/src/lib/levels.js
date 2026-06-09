@@ -8,6 +8,8 @@ export const LEVELS = [
   { level: 7, name: 'Delegate', color: '#a855f7', bg: '#16082a', desc: 'I will fully delegate to them' },
 ];
 
+const UNKNOWN_LEVEL = { level: 0, name: 'Unknown', color: '#94a3b8', bg: '#1e293b', desc: '' };
+
 export function levelById(level) {
-  return LEVELS.find(l => l.level === level);
+  return LEVELS.find(l => l.level === level) ?? UNKNOWN_LEVEL;
 }

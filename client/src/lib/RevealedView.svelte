@@ -75,7 +75,9 @@
       <button class="btn-again" onclick={onPlayAgain}>
         Play Again
       </button>
-      <button class="btn-reset" onclick={onReset}>
+      <button class="btn-reset" onclick={() => {
+        if (confirm('Reset session? This clears all round history.')) onReset();
+      }}>
         New Scenario
       </button>
     </div>

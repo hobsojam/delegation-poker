@@ -1,5 +1,5 @@
 const { WEBSOCKET_MESSAGE_ERRORS } = require('../shared/errors.json');
-const { addParticipant, setVote, startRound, revealVotes, playAgain, resetSession } = require('./sessions');
+const { addParticipant, removeParticipant, setVote, startRound, revealVotes, playAgain, resetSession } = require('./sessions');
 const { validateShortText, shortText } = require('./validate');
 
 const MAX_NAME_LEN = 50;
@@ -94,6 +94,11 @@ function handleReset(ws, session) {
   return true;
 }
 
+function handleLeave(ws, session) {
+  removeParticipant(session.id, ws.participantId);
+  return true;
+}
+
 async function handleMessage(ws, session, data) {
   switch (data.type) {
     case 'join':        return handleJoin(ws, session, data);
@@ -102,6 +107,7 @@ async function handleMessage(ws, session, data) {
     case 'reveal':      return handleReveal(ws, session);
     case 'play_again':  return handlePlayAgain(ws, session);
     case 'reset':       return handleReset(ws, session);
+    case 'leave':       return handleLeave(ws, session);
     default:
       return sendError(ws, WEBSOCKET_MESSAGE_ERRORS.UNKNOWN_MESSAGE_TYPE, `Unknown message type: ${data.type}`);
   }

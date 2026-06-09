@@ -67,6 +67,7 @@
   });
 
   function handleLeave() {
+    selectedRound = null;
     disconnect();
     page = 'home';
     joiningName = null;
@@ -157,13 +158,6 @@
     font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
     height: 100dvh;
     overflow: hidden;
-    user-select: none;
-    -webkit-user-select: none;
-  }
-
-  :global(textarea, input) {
-    user-select: text;
-    -webkit-user-select: text;
   }
 
   :global(:focus-visible) {
