@@ -3,7 +3,9 @@ const sessions = new Map();
 function generateCode() {
   const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ';
   let code;
+  let attempts = 0;
   do {
+    if (attempts++ > 100) throw new Error('No session codes available');
     code = Array.from({ length: 4 }, () => chars[Math.floor(Math.random() * chars.length)]).join('');
   } while (sessions.has(code));
   return code;

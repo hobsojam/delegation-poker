@@ -99,6 +99,9 @@ export function send(message) {
 
 export function disconnect() {
   intentionalClose = true;
+  if (socket?.readyState === WebSocket.OPEN) {
+    socket.send(JSON.stringify({ type: 'leave' }));
+  }
   sessionStorage.removeItem(PARTICIPANT_KEY);
   myParticipantId.set(null);
   if (retryTimeout) {

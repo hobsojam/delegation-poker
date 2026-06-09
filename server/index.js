@@ -5,7 +5,7 @@ const { WebSocketServer } = require('ws');
 const { v4: uuidv4 } = require('uuid');
 const rateLimit = require('express-rate-limit');
 const { WEBSOCKET_ERRORS, WEBSOCKET_MESSAGE_ERRORS } = require('../shared/errors.json');
-const { createSession, getSession, getAllSessions, removeParticipant, deleteSession } = require('./sessions');
+const { createSession, getSession, getAllSessions, deleteSession } = require('./sessions');
 const { handleMessage } = require('./handlers');
 const { sanitizeSession } = require('./sanitize');
 
@@ -55,8 +55,12 @@ const staticFallbackLimiter = rateLimit({
 app.use('/api', apiLimiter);
 
 app.post('/api/sessions', createSessionLimiter, (req, res) => {
-  const session = createSession();
-  res.json({ id: session.id });
+  try {
+    const session = createSession();
+    res.json({ id: session.id });
+  } catch {
+    res.status(503).json({ error: 'Server at capacity, please try again later' });
+  }
 });
 
 app.get('/api/sessions/:id', (req, res) => {
@@ -79,7 +83,7 @@ app.get('/{*path}', staticFallbackLimiter, (req, res) => {
 });
 
 const server = http.createServer(app);
-const wss = new WebSocketServer({ server });
+const wss = new WebSocketServer({ server, maxPayload: 64 * 1024 });
 
 function broadcastState(session, sockets) {
   for (const ws of sockets) {
@@ -215,14 +219,6 @@ function handleConnection(ws, req) {
     if (sockets) {
       sockets.delete(ws);
       if (sockets.size === 0) sessionSockets.delete(sessionId);
-    }
-    const currentSession = getSession(sessionId);
-    if (currentSession) {
-      removeParticipant(sessionId, ws.participantId);
-      const remaining = sessionSockets.get(sessionId);
-      if (remaining && remaining.size > 0) {
-        broadcastState(getSession(sessionId), remaining);
-      }
     }
   });
 
