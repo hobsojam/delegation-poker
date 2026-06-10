@@ -1,5 +1,6 @@
 <script>
   import { levelById } from './levels.js';
+  import DecisionSummary from './DecisionSummary.svelte';
 
   let { entry, onClose } = $props();
 
@@ -47,18 +48,7 @@
     {/if}
 
     {#if entry.decision}
-      {@const decisionLevel = levelById(entry.decision.level)}
-      <div class="decision-summary" style="--color: {decisionLevel.color}; --bg: {decisionLevel.bg}">
-        <span class="decision-label">Saved decision</span>
-        <div class="decision-level">
-          <span class="decision-num">{decisionLevel.level}</span>
-          <strong>{decisionLevel.name}</strong>
-          <span>{decisionLevel.desc}</span>
-        </div>
-        {#if entry.decision.notes}
-          <p>{entry.decision.notes}</p>
-        {/if}
-      </div>
+      <DecisionSummary decision={entry.decision} />
     {/if}
 
     <div class="vote-list">
@@ -170,55 +160,6 @@
     display: flex;
     flex-direction: column;
     gap: 8px;
-  }
-
-  .decision-summary {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    padding: 10px 14px;
-    background: var(--bg);
-    border: 1.5px solid var(--color);
-    border-radius: 8px;
-  }
-
-  .decision-label {
-    color: #94a3b8;
-    font-size: 11px;
-    font-weight: 700;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-  }
-
-  .decision-level {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    flex-wrap: wrap;
-  }
-
-  .decision-num {
-    width: 26px;
-    height: 26px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 50%;
-    background: var(--color);
-    color: white;
-    font-weight: 900;
-  }
-
-  .decision-level strong {
-    color: #e2e8f0;
-    font-size: 14px;
-  }
-
-  .decision-level span:last-child,
-  .decision-summary p {
-    color: #cbd5e1;
-    font-size: 12px;
-    line-height: 1.4;
   }
 
   .vote-row {

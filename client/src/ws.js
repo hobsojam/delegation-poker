@@ -28,12 +28,7 @@ function setFatalError(message) {
 function getOrCreateParticipantId() {
   let id = sessionStorage.getItem(PARTICIPANT_KEY);
   if (!id) {
-    id = crypto.randomUUID
-      ? crypto.randomUUID()
-      : 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
-          const r = Math.trunc(Math.random() * 16);
-          return (c === 'x' ? r : (r & 0x3) | 0x8).toString(16);
-        });
+    id = crypto.randomUUID();
     sessionStorage.setItem(PARTICIPANT_KEY, id);
   }
   return id;

@@ -1,5 +1,6 @@
 <script>
   import { LEVELS, levelById } from './levels.js';
+  import DecisionSummary from './DecisionSummary.svelte';
   import { downloadDecisionPoster } from './poster.js';
 
   let { session, isFacilitator, onPlayAgain, onReset, onSaveDecision } = $props();
@@ -123,21 +124,7 @@
     </div>
 
     {#if currentDecision}
-      {@const savedLevel = levelById(currentDecision.level)}
-      <div class="saved-decision" style="--color: {savedLevel.color}; --bg: {savedLevel.bg}">
-        <div class="saved-level">
-          <span class="saved-num">{savedLevel.level}</span>
-          <div>
-            <strong>{savedLevel.name}</strong>
-            <span>{savedLevel.desc}</span>
-          </div>
-        </div>
-        {#if currentDecision.notes}
-          <p>{currentDecision.notes}</p>
-        {:else}
-          <p class="muted-note">No notes recorded.</p>
-        {/if}
-      </div>
+      <DecisionSummary decision={currentDecision} />
     {:else if !isFacilitator}
       <p class="muted-note">Waiting for the facilitator to save the final delegation decision.</p>
     {/if}
@@ -418,62 +405,11 @@
     letter-spacing: 0.06em;
   }
 
-  .saved-decision {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    padding: 12px;
-    background: var(--bg);
-    border: 1.5px solid var(--color);
-    border-radius: 8px;
-  }
-
-  .saved-level {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-  }
-
-  .saved-num {
-    width: 40px;
-    height: 40px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 50%;
-    background: var(--color);
-    color: white;
-    font-size: 22px;
-    font-weight: 900;
-    flex-shrink: 0;
-  }
-
-  .saved-level div {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-  }
-
-  .saved-level strong {
-    font-size: 15px;
-    color: #e2e8f0;
-  }
-
-  .saved-level span {
-    font-size: 12px;
-    color: #cbd5e1;
-  }
-
-  .saved-decision p,
   .muted-note,
   .poster-help,
   .error-text {
     font-size: 13px;
     line-height: 1.5;
-  }
-
-  .saved-decision p {
-    color: #e2e8f0;
   }
 
   .muted-note,
