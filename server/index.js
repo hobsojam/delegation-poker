@@ -1,7 +1,7 @@
 const http = require('node:http');
 const path = require('node:path');
 const express = require('express');
-const { WebSocketServer } = require('ws');
+const { WebSocket, WebSocketServer } = require('ws');
 const { v4: uuidv4 } = require('uuid');
 const rateLimit = require('express-rate-limit');
 const { WEBSOCKET_ERRORS, WEBSOCKET_MESSAGE_ERRORS } = require('../shared/errors.json');
@@ -87,7 +87,7 @@ const wss = new WebSocketServer({ server, maxPayload: 64 * 1024 });
 
 function broadcastState(session, sockets) {
   for (const ws of sockets) {
-    if (ws.readyState === ws.OPEN) {
+    if (ws.readyState === WebSocket.OPEN) {
       const sanitized = sanitizeSession(session, ws.participantId);
       ws.send(JSON.stringify({ type: 'state', session: sanitized }));
     }
@@ -221,7 +221,7 @@ function handleConnection(ws, req) {
       broadcastState(updatedSession, sockets);
     }).catch((err) => {
       console.error(`[WS] Error (${ws.participantId ?? 'unknown'}):`, err.message);
-      if (ws.readyState === ws.OPEN) {
+      if (ws.readyState === WebSocket.OPEN) {
         ws.send(JSON.stringify({ type: 'error', code: WEBSOCKET_MESSAGE_ERRORS.INTERNAL_SERVER_ERROR, message: 'Internal server error' }));
       }
     });
@@ -272,6 +272,8 @@ module.exports = {
   app,
   broadcastState,
   handleConnection,
+  server,
+  wss,
   sessionSockets,
   sweepInactiveSessions,
   wsConnectionCountsByIp,
