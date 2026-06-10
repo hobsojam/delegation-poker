@@ -85,9 +85,26 @@ function revealVotes(sessionId) {
     round: session.round,
     scenario: session.scenario,
     votes: session.participants.map(p => ({ name: p.name, choice: p.choice })),
+    decision: null,
   });
   session.phase = 'revealed';
   markActivity(session);
+}
+
+function saveDecision(sessionId, round, decision) {
+  const session = sessions.get(sessionId);
+  if (!session) return false;
+  const entry = session.history.find(item => item.round === round);
+  if (!entry) return false;
+  const now = Date.now();
+  entry.decision = {
+    level: decision.level,
+    notes: decision.notes,
+    decidedAt: entry.decision?.decidedAt ?? now,
+    updatedAt: now,
+  };
+  markActivity(session);
+  return true;
 }
 
 function playAgain(sessionId) {
@@ -123,6 +140,7 @@ module.exports = {
   setVote,
   startRound,
   revealVotes,
+  saveDecision,
   playAgain,
   resetSession,
   deleteSession,

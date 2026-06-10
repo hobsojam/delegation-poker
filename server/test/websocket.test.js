@@ -125,12 +125,12 @@ test('votes stay hidden during play and are visible after reveal', async () => {
     await roundStarted;
 
     const voteRecorded = waitForState(facilitator, (state) => {
-      const voter = state.participants.find(p => p.id === 'player-vote-test');
+      const voter = state.participants.find(p => p.name === 'Devon');
       return state.phase === 'playing' && voter?.hasVoted;
     }, 'hidden vote state');
     sendJson(player, { type: 'vote', level: 4 });
     const hiddenState = await voteRecorded;
-    const hiddenVoter = hiddenState.session.participants.find(p => p.id === 'player-vote-test');
+    const hiddenVoter = hiddenState.session.participants.find(p => p.name === 'Devon');
 
     assert.equal(hiddenVoter.hasVoted, true);
     assert.equal(hiddenVoter.choice, undefined);
@@ -139,9 +139,69 @@ test('votes stay hidden during play and are visible after reveal', async () => {
     const votesRevealed = waitForState(player, (state) => state.phase === 'revealed', 'revealed state');
     sendJson(facilitator, { type: 'reveal' });
     const revealedState = await votesRevealed;
-    const revealedVoter = revealedState.session.participants.find(p => p.id === 'player-vote-test');
+    const revealedVoter = revealedState.session.participants.find(p => p.name === 'Devon');
 
     assert.equal(revealedVoter.choice, 4);
+  } finally {
+    closeSocket(facilitator);
+    closeSocket(player);
+  }
+});
+
+test('facilitator can save and update a revealed decision', async () => {
+  const session = createSession();
+  const facilitator = await connect(session.id, 'facilitator-decision-test');
+  const player = await connect(session.id, 'player-decision-test');
+
+  try {
+    const facilitatorJoined = waitForState(facilitator, (state) => state.participants.length === 1, 'facilitator joined');
+    sendJson(facilitator, { type: 'join', name: 'Emery', isFacilitator: true });
+    await facilitatorJoined;
+
+    const playerJoined = waitForState(facilitator, (state) => state.participants.length === 2, 'player joined');
+    sendJson(player, { type: 'join', name: 'Finley', isFacilitator: false });
+    await playerJoined;
+
+    const roundStarted = waitForState(player, (state) => state.phase === 'playing', 'round started');
+    sendJson(facilitator, { type: 'start_round', scenario: 'Choose release owner' });
+    await roundStarted;
+
+    const voteRecorded = waitForState(facilitator, (state) => {
+      const voter = state.participants.find(p => p.name === 'Finley');
+      return voter?.hasVoted;
+    }, 'vote recorded');
+    sendJson(player, { type: 'vote', level: 6 });
+    await voteRecorded;
+
+    const votesRevealed = waitForState(player, (state) => state.phase === 'revealed', 'revealed state');
+    sendJson(facilitator, { type: 'reveal' });
+    await votesRevealed;
+
+    const decisionSaved = waitForState(player, (state) => state.history[0]?.decision?.level === 5, 'decision saved');
+    sendJson(facilitator, {
+      type: 'save_decision',
+      round: 1,
+      level: 5,
+      notes: 'Team owns it; manager advises on risk.',
+    });
+    const savedState = await decisionSaved;
+
+    assert.equal(savedState.session.history[0].decision.notes, 'Team owns it; manager advises on risk.');
+    assert.equal(typeof savedState.session.history[0].decision.decidedAt, 'number');
+
+    const originalDecidedAt = savedState.session.history[0].decision.decidedAt;
+    const decisionUpdated = waitForState(player, (state) => state.history[0]?.decision?.level === 6, 'decision updated');
+    sendJson(facilitator, {
+      type: 'save_decision',
+      round: 1,
+      level: 6,
+      notes: 'Team decides and reports back after release.',
+    });
+    const updatedState = await decisionUpdated;
+
+    assert.equal(updatedState.session.history[0].decision.decidedAt, originalDecidedAt);
+    assert.equal(updatedState.session.history[0].decision.level, 6);
+    assert.equal(updatedState.session.history[0].decision.notes, 'Team decides and reports back after release.');
   } finally {
     closeSocket(facilitator);
     closeSocket(player);

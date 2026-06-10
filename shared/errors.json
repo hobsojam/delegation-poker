@@ -22,6 +22,7 @@
     "INVALID_JSON": "invalid_json",
     "INVALID_NAME": "invalid_name",
     "INVALID_SCENARIO": "invalid_scenario",
+    "INVALID_DECISION": "invalid_decision",
     "INVALID_LEVEL": "invalid_level",
     "NOT_FACILITATOR": "not_facilitator",
     "WRONG_PHASE": "wrong_phase",

@@ -130,6 +130,7 @@
       <RevealedView
         {session}
         {isFacilitator}
+        onSaveDecision={(decision) => send({ type: 'save_decision', ...decision })}
         onPlayAgain={() => send({ type: 'play_again' })}
         onReset={() => send({ type: 'reset' })}
       />

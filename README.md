@@ -113,11 +113,14 @@ All messages are JSON. Direction noted as C→S (client to server) or S→C (ser
 | `start_round` | C→S | Facilitator starts a round: `{ scenario }` |
 | `vote` | C→S | Cast a vote: `{ level }` (1–7) |
 | `reveal` | C→S | Facilitator reveals all votes |
+| `save_decision` | C→S | Facilitator saves or updates the final decision for a revealed round: `{ round, level, notes }` |
 | `play_again` | C→S | Facilitator reruns the same scenario |
 | `reset` | C→S | Facilitator resets to lobby, clears history |
 | `leave` | C→S | Sent automatically on disconnect to remove the participant |
 | `state` | S→C | Full sanitised session state broadcast to all participants |
 | `error` | S→C | `{ code, message }` |
+
+Saved decisions are stored on round history entries and can be exported from the results screen as a single A4 or A3 PNG poster for the whole session.
 
 ## Deploying
 
