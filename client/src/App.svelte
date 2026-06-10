@@ -58,7 +58,7 @@
   }
 
   $effect(() => {
-    if (session && !hasJoined && joiningName) {
+    if (session && joiningName && (!hasJoined || !myParticipant)) {
       hasJoined = true;
       send({ type: 'join', name: joiningName, isFacilitator: joiningIsFacilitator });
     }
