@@ -1,4 +1,5 @@
 const { WEBSOCKET_MESSAGE_ERRORS } = require('../shared/errors.json');
+const { WebSocket } = require('ws');
 const { addParticipant, removeParticipant, setVote, startRound, revealVotes, playAgain, resetSession } = require('./sessions');
 const { validateShortText, shortText } = require('./validate');
 
@@ -7,7 +8,7 @@ const MAX_SCENARIO_LEN = 500;
 const VALID_LEVELS = new Set([1, 2, 3, 4, 5, 6, 7]);
 
 function send(ws, payload) {
-  if (ws.readyState === ws.OPEN) ws.send(JSON.stringify(payload));
+  if (ws.readyState === WebSocket.OPEN) ws.send(JSON.stringify(payload));
 }
 
 function sendError(ws, code, message) {
