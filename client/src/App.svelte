@@ -1,5 +1,5 @@
 <script>
-  import { sessionState, wsError, fatalWsError, connect, send, disconnect, myParticipantId } from './ws.js';
+  import { sessionState, wsError, fatalWsError, connect, send, disconnect } from './ws.js';
   import JoinForm from './lib/JoinForm.svelte';
   import LobbyView from './lib/LobbyView.svelte';
   import PlayingView from './lib/PlayingView.svelte';
@@ -28,10 +28,8 @@
   let session = $derived($sessionState);
   let error = $derived($wsError);
   let fatalError = $derived($fatalWsError);
-  let myId = $derived($myParticipantId);
-
   let myParticipant = $derived(
-    session?.participants?.find(p => p.id === myId) ?? null
+    session?.participants?.find(p => p.isSelf) ?? null
   );
 
   let isFacilitator = $derived(
@@ -39,7 +37,7 @@
   );
 
   let myChoice = $derived(
-    session?.participants?.find(p => p.id === myId)?.myChoice ?? null
+    myParticipant?.myChoice ?? null
   );
 
   let phaseBadge = $derived.by(() => {

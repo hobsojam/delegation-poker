@@ -1,4 +1,12 @@
 function sanitizeSession(session, participantId) {
+  function participantBase(p) {
+    return {
+      name: p.name,
+      isFacilitator: p.isFacilitator,
+      isSelf: p.id === participantId,
+    };
+  }
+
   const base = {
     id: session.id,
     phase: session.phase,
@@ -11,20 +19,14 @@ function sanitizeSession(session, participantId) {
     case 'lobby':
       return {
         ...base,
-        participants: session.participants.map(p => ({
-          id: p.id,
-          name: p.name,
-          isFacilitator: p.isFacilitator,
-        })),
+        participants: session.participants.map(participantBase),
       };
 
     case 'playing':
       return {
         ...base,
         participants: session.participants.map(p => ({
-          id: p.id,
-          name: p.name,
-          isFacilitator: p.isFacilitator,
+          ...participantBase(p),
           hasVoted: p.choice !== null,
           ...(p.id === participantId && { myChoice: p.choice }),
         })),
@@ -34,9 +36,7 @@ function sanitizeSession(session, participantId) {
       return {
         ...base,
         participants: session.participants.map(p => ({
-          id: p.id,
-          name: p.name,
-          isFacilitator: p.isFacilitator,
+          ...participantBase(p),
           choice: p.choice,
         })),
       };
