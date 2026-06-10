@@ -1,5 +1,6 @@
 <script>
   import { levelById } from './levels.js';
+  import DecisionSummary from './DecisionSummary.svelte';
 
   let { entry, onClose } = $props();
 
@@ -44,6 +45,10 @@
       <p class="modal-scenario">{entry.scenario}</p>
     {:else}
       <p class="modal-scenario muted">No scenario set</p>
+    {/if}
+
+    {#if entry.decision}
+      <DecisionSummary decision={entry.decision} />
     {/if}
 
     <div class="vote-list">

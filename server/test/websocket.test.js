@@ -85,15 +85,42 @@ function waitForState(ws, predicate, label = 'state') {
   return waitForMessage(ws, (msg) => msg.type === 'state' && predicate(msg.session), label);
 }
 
+async function joinParticipant(ws, name, isFacilitator, observer = ws) {
+  const joined = waitForState(observer, (state) => (
+    state.participants.some(p => p.name === name && p.isFacilitator === isFacilitator)
+  ), `${name} joined`);
+  sendJson(ws, { type: 'join', name, isFacilitator });
+  await joined;
+}
+
+async function startRound(facilitator, observer, scenario) {
+  const roundStarted = waitForState(observer, (state) => state.phase === 'playing', 'round started');
+  sendJson(facilitator, { type: 'start_round', scenario });
+  await roundStarted;
+}
+
+async function vote(ws, observer, name, level, label = 'vote recorded') {
+  const voteRecorded = waitForState(observer, (state) => {
+    const voter = state.participants.find(p => p.name === name);
+    return voter?.hasVoted;
+  }, label);
+  sendJson(ws, { type: 'vote', level });
+  await voteRecorded;
+}
+
+async function reveal(facilitator, observer) {
+  const votesRevealed = waitForState(observer, (state) => state.phase === 'revealed', 'revealed state');
+  sendJson(facilitator, { type: 'reveal' });
+  return votesRevealed;
+}
+
 test('only one facilitator can join a session', async () => {
   const session = createSession();
   const facilitator = await connect(session.id, 'facilitator');
   const secondFacilitator = await connect(session.id, 'second-facilitator');
 
   try {
-    const facilitatorJoined = waitForState(facilitator, (state) => state.participants.some(p => p.isFacilitator), 'facilitator join state');
-    sendJson(facilitator, { type: 'join', name: 'Ari', isFacilitator: true });
-    await facilitatorJoined;
+    await joinParticipant(facilitator, 'Ari', true);
 
     const rejected = waitForMessage(secondFacilitator, (msg) => msg.type === 'error', 'second facilitator rejection');
     sendJson(secondFacilitator, { type: 'join', name: 'Blair', isFacilitator: true });
@@ -112,36 +139,69 @@ test('votes stay hidden during play and are visible after reveal', async () => {
   const player = await connect(session.id, 'player-vote-test');
 
   try {
-    const facilitatorJoined = waitForState(facilitator, (state) => state.participants.length === 1, 'facilitator joined');
-    sendJson(facilitator, { type: 'join', name: 'Casey', isFacilitator: true });
-    await facilitatorJoined;
-
-    const playerJoined = waitForState(facilitator, (state) => state.participants.length === 2, 'player joined');
-    sendJson(player, { type: 'join', name: 'Devon', isFacilitator: false });
-    await playerJoined;
-
-    const roundStarted = waitForState(player, (state) => state.phase === 'playing', 'round started');
-    sendJson(facilitator, { type: 'start_round', scenario: 'Approve budget' });
-    await roundStarted;
+    await joinParticipant(facilitator, 'Casey', true);
+    await joinParticipant(player, 'Devon', false, facilitator);
+    await startRound(facilitator, player, 'Approve budget');
 
     const voteRecorded = waitForState(facilitator, (state) => {
-      const voter = state.participants.find(p => p.id === 'player-vote-test');
+      const voter = state.participants.find(p => p.name === 'Devon');
       return state.phase === 'playing' && voter?.hasVoted;
     }, 'hidden vote state');
     sendJson(player, { type: 'vote', level: 4 });
     const hiddenState = await voteRecorded;
-    const hiddenVoter = hiddenState.session.participants.find(p => p.id === 'player-vote-test');
+    const hiddenVoter = hiddenState.session.participants.find(p => p.name === 'Devon');
 
     assert.equal(hiddenVoter.hasVoted, true);
     assert.equal(hiddenVoter.choice, undefined);
     assert.equal(hiddenVoter.myChoice, undefined);
 
-    const votesRevealed = waitForState(player, (state) => state.phase === 'revealed', 'revealed state');
-    sendJson(facilitator, { type: 'reveal' });
-    const revealedState = await votesRevealed;
-    const revealedVoter = revealedState.session.participants.find(p => p.id === 'player-vote-test');
+    const revealedState = await reveal(facilitator, player);
+    const revealedVoter = revealedState.session.participants.find(p => p.name === 'Devon');
 
     assert.equal(revealedVoter.choice, 4);
+  } finally {
+    closeSocket(facilitator);
+    closeSocket(player);
+  }
+});
+
+test('facilitator can save and update a revealed decision', async () => {
+  const session = createSession();
+  const facilitator = await connect(session.id, 'facilitator-decision-test');
+  const player = await connect(session.id, 'player-decision-test');
+
+  try {
+    await joinParticipant(facilitator, 'Emery', true);
+    await joinParticipant(player, 'Finley', false, facilitator);
+    await startRound(facilitator, player, 'Choose release owner');
+    await vote(player, facilitator, 'Finley', 6);
+    await reveal(facilitator, player);
+
+    const decisionSaved = waitForState(player, (state) => state.history[0]?.decision?.level === 5, 'decision saved');
+    sendJson(facilitator, {
+      type: 'save_decision',
+      round: 1,
+      level: 5,
+      notes: 'Team owns it; manager advises on risk.',
+    });
+    const savedState = await decisionSaved;
+
+    assert.equal(savedState.session.history[0].decision.notes, 'Team owns it; manager advises on risk.');
+    assert.equal(typeof savedState.session.history[0].decision.decidedAt, 'number');
+
+    const originalDecidedAt = savedState.session.history[0].decision.decidedAt;
+    const decisionUpdated = waitForState(player, (state) => state.history[0]?.decision?.level === 6, 'decision updated');
+    sendJson(facilitator, {
+      type: 'save_decision',
+      round: 1,
+      level: 6,
+      notes: 'Team decides and reports back after release.',
+    });
+    const updatedState = await decisionUpdated;
+
+    assert.equal(updatedState.session.history[0].decision.decidedAt, originalDecidedAt);
+    assert.equal(updatedState.session.history[0].decision.level, 6);
+    assert.equal(updatedState.session.history[0].decision.notes, 'Team decides and reports back after release.');
   } finally {
     closeSocket(facilitator);
     closeSocket(player);

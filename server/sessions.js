@@ -1,3 +1,5 @@
+const { randomInt } = require('node:crypto');
+
 const sessions = new Map();
 
 function generateCode() {
@@ -6,7 +8,7 @@ function generateCode() {
   let attempts = 0;
   do {
     if (attempts++ > 100) throw new Error('No session codes available');
-    code = Array.from({ length: 4 }, () => chars[Math.floor(Math.random() * chars.length)]).join('');
+    code = Array.from({ length: 4 }, () => chars[randomInt(chars.length)]).join('');
   } while (sessions.has(code));
   return code;
 }
@@ -85,9 +87,26 @@ function revealVotes(sessionId) {
     round: session.round,
     scenario: session.scenario,
     votes: session.participants.map(p => ({ name: p.name, choice: p.choice })),
+    decision: null,
   });
   session.phase = 'revealed';
   markActivity(session);
+}
+
+function saveDecision(sessionId, round, decision) {
+  const session = sessions.get(sessionId);
+  if (!session) return false;
+  const entry = session.history.find(item => item.round === round);
+  if (!entry) return false;
+  const now = Date.now();
+  entry.decision = {
+    level: decision.level,
+    notes: decision.notes,
+    decidedAt: entry.decision?.decidedAt ?? now,
+    updatedAt: now,
+  };
+  markActivity(session);
+  return true;
 }
 
 function playAgain(sessionId) {
@@ -123,6 +142,7 @@ module.exports = {
   setVote,
   startRound,
   revealVotes,
+  saveDecision,
   playAgain,
   resetSession,
   deleteSession,
