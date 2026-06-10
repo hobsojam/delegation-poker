@@ -127,6 +127,17 @@ function closeWithError(ws, error) {
   ws.close(error.code, error.description);
 }
 
+function hasOtherParticipantSocket(sessionId, participantId, socketToIgnore) {
+  const sockets = sessionSockets.get(sessionId);
+  if (!sockets) return false;
+  for (const socket of sockets) {
+    if (socket !== socketToIgnore && socket.participantId === participantId) {
+      return true;
+    }
+  }
+  return false;
+}
+
 function handleConnection(ws, req) {
   const url = new URL(req.url, 'http://localhost');
   const sessionId = url.searchParams.get('sessionId')?.toUpperCase();
@@ -199,7 +210,10 @@ function handleConnection(ws, req) {
 
       console.log(`[WS] ${ws.participantId} (${ws.name ?? 'unnamed'}) in ${sessionId}: ${data.type}`);
 
-      const stateChanged = await handleMessage(ws, currentSession, data);
+      const context = {
+        hasOtherParticipantSocket: () => hasOtherParticipantSocket(sessionId, ws.participantId, ws),
+      };
+      const stateChanged = await handleMessage(ws, currentSession, data, context);
       if (!stateChanged) return;
 
       const updatedSession = getSession(sessionId);
@@ -261,4 +275,5 @@ module.exports = {
   sessionSockets,
   sweepInactiveSessions,
   wsConnectionCountsByIp,
+  hasOtherParticipantSocket,
 };
