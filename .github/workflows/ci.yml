@@ -43,3 +43,22 @@ jobs:
         working-directory: client
       - run: npm run build
         working-directory: client
+
+  audit:
+    name: Dependency audit
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 26
+      - run: npm ci
+        working-directory: server
+      - name: Audit server dependencies
+        run: npm audit --audit-level=high
+        working-directory: server
+      - run: npm ci
+        working-directory: client
+      - name: Audit client dependencies
+        run: npm audit --audit-level=high
+        working-directory: client
