@@ -124,14 +124,16 @@ Saved decisions are stored on round history entries and can be exported from the
 
 ## Deploying
 
-The Docker image is self-contained. Push to Railway, Render, Fly.io, or similar:
+A Render free-tier deployment is defined by `render.yaml`: in Render choose New → Blueprint, select this repo, and confirm. Merges to `master` auto-deploy. Note the free tier spins down after a quiet period, so the first load can take ~30–60 seconds.
+
+The Docker image is otherwise self-contained and runs on any platform that supports Node.js 26 or Docker (Railway, Fly.io, or similar):
 
 ```bash
 docker build -t delegation-poker .
 docker run -p 3000:3000 delegation-poker
 ```
 
-Set the `PORT` environment variable if the platform requires it (most do this automatically). No external services required.
+Set the `PORT` environment variable if the platform requires it (most do this automatically), and `TRUST_PROXY=true` behind a TLS-terminating proxy so rate limiting sees real client IPs. No external services required.
 
 ## Environment variables
 

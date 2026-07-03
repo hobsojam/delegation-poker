@@ -1,0 +1,9 @@
+services:
+  - type: web
+    name: delegation-poker
+    runtime: docker
+    plan: free
+    healthCheckPath: /health
+    envVars:
+      - key: TRUST_PROXY
+        value: "true"
