@@ -2,6 +2,8 @@
 
 A multiplayer web tool for the Management 3.0 Delegation Poker exercise. Players simultaneously vote on the appropriate delegation level for a given decision, then discuss the result as a group.
 
+**Live demo:** https://delegation-poker.onrender.com — runs on Render's free tier, so the first load after a quiet period takes ~30–60 seconds while the instance wakes up.
+
 ## What is Delegation Poker?
 
 Delegation Poker is a team exercise for agreeing on how much authority a manager should delegate for specific decisions. Rather than a blanket "you're empowered" or "ask me first," it creates a shared, explicit understanding of delegation on a decision-by-decision basis.
