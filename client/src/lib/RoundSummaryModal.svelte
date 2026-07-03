@@ -102,16 +102,16 @@
 
   .modal {
     position: relative;
-    background: #1e293b;
-    border: 1px solid #334155;
-    border-radius: 14px;
+    background: var(--surface-solid);
+    border: 1px solid var(--border);
+    border-radius: 20px;
     width: 100%;
     max-width: 440px;
     display: flex;
     flex-direction: column;
     gap: 14px;
     padding: 20px;
-    box-shadow: 0 24px 48px rgba(0, 0, 0, 0.5);
+    box-shadow: var(--shadow);
   }
 
   .modal-header {
@@ -149,8 +149,8 @@
     line-height: 1.5;
     margin: 0;
     padding: 10px 14px;
-    background: #0f172a;
-    border-radius: 8px;
+    background: rgba(8,13,26,.52);
+    border-radius: 10px;
     font-style: italic;
   }
 

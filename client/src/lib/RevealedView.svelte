@@ -196,7 +196,7 @@
     flex-direction: column;
     gap: 16px;
     padding: 16px;
-    max-width: 640px;
+    max-width: 900px;
     margin: 0 auto;
     width: 100%;
     height: 100%;
@@ -208,9 +208,9 @@
     flex-direction: column;
     gap: 6px;
     padding: 14px 18px;
-    background: #1e293b;
-    border: 1px solid #334155;
-    border-radius: 10px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
   }
 
   .scenario-label {
@@ -255,9 +255,9 @@
     justify-content: space-between;
     gap: 12px;
     padding: 10px 14px;
-    background: #1e293b;
-    border: 1px solid #334155;
-    border-radius: 10px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
   }
 
   .player-info {
@@ -382,9 +382,9 @@
     flex-direction: column;
     gap: 12px;
     padding: 14px 18px;
-    background: #1e293b;
-    border: 1px solid #334155;
-    border-radius: 10px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
   }
 
   .section-heading {
@@ -444,10 +444,10 @@
   select,
   textarea {
     padding: 10px 12px;
-    background: #0f172a;
-    border: 1.5px solid #334155;
-    border-radius: 8px;
-    color: #e2e8f0;
+    background: rgba(8,13,26,.52);
+    border: 1px solid var(--border-strong);
+    border-radius: 10px;
+    color: var(--text);
     font: inherit;
     outline: none;
   }
@@ -507,7 +507,7 @@
   }
 
   .btn-poster.primary {
-    background: #3b82f6;
+    background: var(--accent);
     color: white;
   }
 
@@ -521,7 +521,7 @@
 
   .btn-again {
     padding: 10px 24px;
-    background: #3b82f6;
+    background: var(--accent);
     color: white;
     border: none;
     border-radius: 8px;

@@ -69,27 +69,29 @@
   .playing {
     display: flex;
     flex-direction: column;
-    gap: 16px;
-    padding: 16px;
+    gap: 20px;
+    padding: clamp(18px, 3vw, 34px);
     height: 100%;
     overflow-y: auto;
+    width: min(1280px, 100%);
+    margin: 0 auto;
   }
 
   .scenario-box {
     display: flex;
     flex-direction: column;
     gap: 6px;
-    padding: 14px 18px;
-    background: #1e293b;
-    border: 1px solid #334155;
-    border-radius: 10px;
+    padding: 18px 22px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
     flex-shrink: 0;
   }
 
   .scenario-label {
     font-size: 11px;
     font-weight: 700;
-    color: #94a3b8;
+    color: var(--muted);
     text-transform: uppercase;
     letter-spacing: 0.08em;
   }
@@ -97,7 +99,7 @@
   .scenario-text {
     font-size: 16px;
     font-weight: 600;
-    color: #e2e8f0;
+    color: var(--text);
     line-height: 1.5;
     margin: 0;
   }
@@ -113,26 +115,25 @@
   .cards-label {
     font-size: 11px;
     font-weight: 600;
-    color: #94a3b8;
+    color: var(--muted);
     text-transform: uppercase;
     letter-spacing: 0.06em;
   }
 
   .cards-grid {
-    display: flex;
+    display: grid;
+    grid-template-columns: repeat(7, minmax(0, 1fr));
     gap: 8px;
-    flex-wrap: wrap;
   }
 
   .level-card {
-    flex: 1 1 0;
-    min-width: 90px;
-    max-width: 180px;
-    min-height: 140px;
-    background: var(--bg);
-    border: 2px solid #334155;
-    border-radius: 12px;
-    padding: 14px 8px;
+    min-width: 0;
+    min-height: 190px;
+    background: linear-gradient(160deg, color-mix(in srgb, var(--color) 11%, #141d30), #0c1322 72%);
+    border: 1px solid var(--border);
+    border-top-color: color-mix(in srgb, var(--color) 45%, transparent);
+    border-radius: 16px;
+    padding: 18px 10px;
     cursor: pointer;
     display: flex;
     flex-direction: column;
@@ -140,37 +141,45 @@
     justify-content: center;
     gap: 6px;
     text-align: center;
-    transition: border-color 0.15s, box-shadow 0.15s, transform 0.1s;
+    transition: border-color 0.18s, box-shadow 0.18s, transform 0.18s;
   }
 
   .level-card:hover {
     border-color: var(--color);
-    transform: translateY(-2px);
+    transform: translateY(-4px);
+    box-shadow: 0 16px 28px rgba(0,0,0,.2);
   }
 
   .level-card:active { transform: scale(0.97); }
 
   .level-card.selected {
     border-color: var(--color);
-    box-shadow: 0 0 0 2px var(--color);
+    box-shadow: 0 0 0 2px color-mix(in srgb, var(--color) 70%, transparent), 0 18px 34px rgba(0,0,0,.26);
+    transform: translateY(-4px);
   }
 
   .level-num {
-    font-size: 36px;
+    width: 52px;
+    height: 52px;
+    display: grid;
+    place-items: center;
+    border-radius: 14px;
+    background: color-mix(in srgb, var(--color) 12%, transparent);
+    font-size: 28px;
     font-weight: 900;
     color: var(--color);
     line-height: 1;
   }
 
   .level-name {
-    font-size: 13px;
+    font-size: 14px;
     font-weight: 700;
-    color: #e2e8f0;
+    color: var(--text);
   }
 
   .level-desc {
     font-size: 11px;
-    color: #94a3b8;
+    color: var(--muted);
     line-height: 1.4;
   }
 
@@ -181,6 +190,10 @@
     gap: 16px;
     flex-shrink: 0;
     flex-wrap: wrap;
+    padding: 16px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
   }
 
   .voters {
@@ -194,7 +207,7 @@
   .voters-label {
     font-size: 11px;
     font-weight: 600;
-    color: #94a3b8;
+    color: var(--muted);
     text-transform: uppercase;
     letter-spacing: 0.06em;
   }
@@ -210,11 +223,11 @@
     align-items: center;
     gap: 6px;
     padding: 5px 10px;
-    background: #1e293b;
-    border: 1px solid #334155;
+    background: rgba(8,13,26,.45);
+    border: 1px solid var(--border);
     border-radius: 99px;
     font-size: 13px;
-    color: #94a3b8;
+    color: var(--muted);
     transition: border-color 0.15s;
   }
 
@@ -250,7 +263,7 @@
     background: #22c55e;
     color: #052e16;
     border: none;
-    border-radius: 8px;
+    border-radius: 10px;
     font-size: 14px;
     font-weight: 700;
     cursor: pointer;
@@ -262,11 +275,24 @@
 
   .voted-badge {
     padding: 10px 18px;
-    background: #1e293b;
-    border: 1px solid #334155;
-    border-radius: 8px;
+    background: rgba(8,13,26,.45);
+    border: 1px solid var(--border);
+    border-radius: 10px;
     font-size: 13px;
-    color: #94a3b8;
+    color: var(--muted);
     flex-shrink: 0;
+  }
+
+  @media (max-width: 1050px) {
+    .cards-grid { grid-template-columns: repeat(4, 1fr); }
+    .level-card { min-height: 160px; }
+  }
+
+  @media (max-width: 620px) {
+    .playing { padding: 14px; }
+    .cards-grid { grid-template-columns: repeat(2, 1fr); }
+    .level-card { min-height: 150px; }
+    .level-card:last-child { grid-column: 1 / -1; }
+    .status-row, .btn-reveal, .voted-badge { width: 100%; }
   }
 </style>
