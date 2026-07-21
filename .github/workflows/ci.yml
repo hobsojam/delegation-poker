@@ -23,7 +23,7 @@ jobs:
           node-version: 26
           cache: npm
           cache-dependency-path: server/package-lock.json
-      - run: npm ci
+      - run: npm ci --ignore-scripts
         working-directory: server
       - name: Syntax check
         run: node --check index.js handlers.js sessions.js sanitize.js validate.js
@@ -39,7 +39,7 @@ jobs:
           node-version: 26
           cache: npm
           cache-dependency-path: client/package-lock.json
-      - run: npm ci
+      - run: npm ci --ignore-scripts
         working-directory: client
       - run: npm run build
         working-directory: client
@@ -52,12 +52,12 @@ jobs:
       - uses: actions/setup-node@v6.4.0
         with:
           node-version: 26
-      - run: npm ci
+      - run: npm ci --ignore-scripts
         working-directory: server
       - name: Audit server dependencies
         run: npm audit --audit-level=high
         working-directory: server
-      - run: npm ci
+      - run: npm ci --ignore-scripts
         working-directory: client
       - name: Audit client dependencies
         run: npm audit --audit-level=high
