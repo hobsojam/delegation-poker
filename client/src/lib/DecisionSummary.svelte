@@ -33,7 +33,7 @@
   }
 
   .decision-label {
-    color: #94a3b8;
+    color: var(--muted);
     font-size: 11px;
     font-weight: 700;
     letter-spacing: 0.06em;
@@ -68,13 +68,13 @@
   }
 
   .decision-level strong {
-    color: #e2e8f0;
+    color: var(--text);
     font-size: 15px;
   }
 
   .decision-level span:last-child,
   p {
-    color: #cbd5e1;
+    color: var(--text);
     font-size: 12px;
     line-height: 1.4;
   }
@@ -84,6 +84,6 @@
   }
 
   .muted {
-    color: #94a3b8;
+    color: var(--muted);
   }
 </style>

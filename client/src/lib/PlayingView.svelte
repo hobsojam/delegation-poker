@@ -232,8 +232,8 @@
   }
 
   .voter.voted {
-    border-color: #22c55e;
-    color: #e2e8f0;
+    border-color: var(--success);
+    color: var(--text);
   }
 
   .voter-indicator {
@@ -245,7 +245,7 @@
     text-align: center;
   }
 
-  .voter.voted .voter-indicator { color: #22c55e; }
+  .voter.voted .voter-indicator { color: var(--success); }
 
   .voter-name { font-size: 13px; font-weight: 500; }
 
@@ -260,8 +260,8 @@
 
   .btn-reveal {
     padding: 10px 24px;
-    background: #22c55e;
-    color: #052e16;
+    background: var(--success);
+    color: var(--success-bg);
     border: none;
     border-radius: 10px;
     font-size: 14px;
@@ -270,7 +270,7 @@
     flex-shrink: 0;
   }
 
-  .btn-reveal:hover { background: #16a34a; color: white; }
+  .btn-reveal:hover { background: var(--success-strong); color: white; }
   .btn-reveal:active { transform: scale(0.97); }
 
   .voted-badge {

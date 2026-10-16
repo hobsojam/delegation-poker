@@ -123,16 +123,16 @@
   .modal-title {
     font-size: 16px;
     font-weight: 700;
-    color: #e2e8f0;
+    color: var(--text);
   }
 
   .close-btn {
     width: 28px;
     height: 28px;
-    background: #334155;
+    background: var(--surface-raised);
     border: none;
     border-radius: 6px;
-    color: #94a3b8;
+    color: var(--muted);
     font-size: 18px;
     line-height: 1;
     cursor: pointer;
@@ -141,11 +141,11 @@
     justify-content: center;
   }
 
-  .close-btn:hover { background: #475569; color: #e2e8f0; }
+  .close-btn:hover { background: color-mix(in srgb, var(--surface-raised) 80%, white 20%); color: var(--text); }
 
   .modal-scenario {
     font-size: 14px;
-    color: #94a3b8;
+    color: var(--muted);
     line-height: 1.5;
     margin: 0;
     padding: 10px 14px;
@@ -154,7 +154,7 @@
     font-style: italic;
   }
 
-  .modal-scenario.muted { color: #94a3b8; }
+  .modal-scenario.muted { color: var(--muted); }
 
   .vote-list {
     display: flex;
@@ -172,7 +172,7 @@
   .vote-name {
     font-size: 14px;
     font-weight: 500;
-    color: #e2e8f0;
+    color: var(--text);
     flex: 1;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -200,12 +200,12 @@
   .vote-lname {
     font-size: 12px;
     font-weight: 700;
-    color: #e2e8f0;
+    color: var(--text);
   }
 
   .no-vote {
     font-size: 12px;
-    color: #94a3b8;
+    color: var(--muted);
     padding: 4px 12px;
   }
 
@@ -217,10 +217,10 @@
     border-radius: 8px;
     border: 1px solid;
     font-size: 13px;
-    color: #e2e8f0;
+    color: var(--text);
   }
 
-  .consensus.success { background: #052e16; border-color: #22c55e; }
-  .consensus.warning { background: #1c1404; border-color: #eab308; }
+  .consensus.success { background: var(--success-bg); border-color: var(--success); }
+  .consensus.warning { background: var(--warning-bg); border-color: var(--warning); }
   .consensus strong { font-weight: 700; }
 </style>
