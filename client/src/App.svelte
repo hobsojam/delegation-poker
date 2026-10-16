@@ -170,6 +170,11 @@
     --accent-soft: rgba(255, 107, 74, 0.12);
     --mint: #52d3a1;
     --blue: #7ca9ff;
+    --success: #22c55e;
+    --success-strong: #16a34a;
+    --success-bg: #052e16;
+    --warning: #eab308;
+    --warning-bg: #1c1404;
     --shadow: 0 24px 64px rgba(0, 0, 0, 0.28);
   }
 

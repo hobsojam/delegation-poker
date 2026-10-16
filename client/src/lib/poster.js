@@ -129,7 +129,7 @@ function renderCard(entry, x, y, width, height, density) {
 
       <text x="${x + padding}" y="${y + height - (density === 'compact' ? 105 : 136)}" font-size="${bodySize}" font-weight="800" fill="#6b7280">NOTES</text>
       ${textBlock(notesLines, x + padding, y + height - (density === 'compact' ? 70 : 94), { size: bodySize, weight: 500, fill: '#374151', lineHeight: Math.round(bodySize * 1.3) })}
-      <text x="${x + width - padding}" y="${y + height - 36}" font-size="${density === 'compact' ? 22 : 25}" font-weight="700" fill="${consensus === entry.decision.level ? '#047857' : '#6b7280'}" text-anchor="end">
+      <text x="${x + width - padding}" y="${y + height - 36}" font-size="${density === 'compact' ? 22 : 25}" font-weight="700" fill="${consensus === entry.decision.level ? '#0e9d72' : '#6b7280'}" text-anchor="end">
         ${consensus === entry.decision.level ? 'Consensus decision' : consensus ? `Consensus was level ${consensus}` : 'Discussed decision'}
       </text>
     </g>
@@ -211,12 +211,12 @@ export async function downloadDecisionPoster(session, sizeKey = 'a3') {
   const svg = `
     <svg xmlns="http://www.w3.org/2000/svg" width="${size.width}" height="${size.height}" viewBox="0 0 ${size.width} ${size.height}">
       <rect width="100%" height="100%" fill="#f8fafc" />
-      <text x="${margin}" y="${margin + 76}" font-size="${sizeKey === 'a3' ? 96 : 76}" font-weight="900" fill="#111827">Delegation Decisions</text>
+      <text x="${margin}" y="${margin + 76}" font-size="${sizeKey === 'a3' ? 96 : 76}" font-weight="900" fill="#111827">Delegation <tspan fill="#ff6b4a">Decisions</tspan></text>
       <text x="${margin}" y="${margin + 132}" font-size="${sizeKey === 'a3' ? 38 : 31}" font-weight="700" fill="#4b5563">
         Session ${escapeXml(session.id)} / ${entries.length} saved decision${entries.length === 1 ? '' : 's'} / Generated ${escapeXml(generatedAt.toLocaleDateString())}
       </text>
       <text x="${size.width - margin}" y="${margin + 132}" font-size="${sizeKey === 'a3' ? 34 : 28}" font-weight="800" fill="#6b7280" text-anchor="end">${size.label} poster</text>
-      <line x1="${margin}" y1="${margin + headerHeight - 28}" x2="${size.width - margin}" y2="${margin + headerHeight - 28}" stroke="#d1d5db" stroke-width="4" />
+      <line x1="${margin}" y1="${margin + headerHeight - 28}" x2="${size.width - margin}" y2="${margin + headerHeight - 28}" stroke="#ff6b4a" stroke-width="4" opacity="0.35" />
       ${content}
       <text x="${size.width - margin}" y="${size.height - 34}" font-size="24" font-weight="700" fill="#9ca3af" text-anchor="end">Delegation Poker</text>
     </svg>

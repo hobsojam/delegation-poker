@@ -1,4 +1,5 @@
 <script>
+  import { fly } from 'svelte/transition';
   import { LEVELS, levelById } from './levels.js';
   import DecisionSummary from './DecisionSummary.svelte';
   import { downloadDecisionPoster } from './poster.js';
@@ -9,12 +10,24 @@
   let decisionNotes = $state('');
   let exportError = $state('');
   let isExporting = $state(false);
+  let barsGrown = $state(false);
+
+  $effect(() => {
+    const t = setTimeout(() => { barsGrown = true; }, 30);
+    return () => clearTimeout(t);
+  });
 
   let choices = $derived(
     session.participants
       .filter(p => p.choice !== null)
       .map(p => p.choice)
   );
+
+  let voteCounts = $derived(
+    LEVELS.map(lvl => ({ ...lvl, count: choices.filter(c => c === lvl.level).length }))
+  );
+
+  let maxVoteCount = $derived(Math.max(1, ...voteCounts.map(l => l.count)));
 
   let hasConsensus = $derived(
     choices.length > 0 && new Set(choices).size === 1
@@ -77,12 +90,30 @@
     </div>
   {/if}
 
+  <div class="spread-section">
+    <span class="section-label">Vote spread</span>
+    <div class="spread-bars">
+      {#each voteCounts as lvl}
+        <div class="spread-col">
+          <span class="spread-count" class:zero={!lvl.count} style="color: {lvl.count ? lvl.color : 'var(--muted)'}">{lvl.count}</span>
+          <div class="spread-track">
+            <div
+              class="spread-bar"
+              style="--color: {lvl.color}; height: {barsGrown ? Math.max(6, (lvl.count / maxVoteCount) * 100) : 0}%"
+            ></div>
+          </div>
+          <span class="spread-level" style="color: {lvl.color}">{lvl.level}</span>
+        </div>
+      {/each}
+    </div>
+  </div>
+
   <div class="results-section">
     <span class="section-label">Round {session.round} results</span>
 
     <div class="results-list">
-      {#each sortedParticipants as p}
-        <div class="result-row">
+      {#each sortedParticipants as p, i}
+        <div class="result-row" in:fly={{ y: 10, duration: 280, delay: i * 50 }}>
           <div class="player-info">
             <span class="avatar">{p.name[0].toUpperCase()}</span>
             <span class="player-name">{p.name}</span>
@@ -102,7 +133,12 @@
     </div>
   </div>
 
-  <div class="consensus-box" class:success={hasConsensus} class:warning={!hasConsensus}>
+  <div
+    class="consensus-box"
+    class:success={hasConsensus}
+    class:warning={!hasConsensus}
+    in:fly={{ y: 10, duration: 280, delay: sortedParticipants.length * 50 + 60 }}
+  >
     {#if hasConsensus}
       {@const lvl = levelById(consensusLevel)}
       <span class="consensus-icon">✓</span>
@@ -216,7 +252,7 @@
   .scenario-label {
     font-size: 11px;
     font-weight: 700;
-    color: #94a3b8;
+    color: var(--muted);
     text-transform: uppercase;
     letter-spacing: 0.08em;
   }
@@ -224,9 +260,63 @@
   .scenario-text {
     font-size: 16px;
     font-weight: 600;
-    color: #e2e8f0;
+    color: var(--text);
     line-height: 1.5;
     margin: 0;
+  }
+
+  .spread-section {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    padding: 16px 18px 10px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+  }
+
+  .spread-bars {
+    display: grid;
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    gap: 10px;
+    align-items: end;
+  }
+
+  .spread-col {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .spread-count {
+    font-size: 15px;
+    font-weight: 800;
+  }
+
+  .spread-count.zero { opacity: 0.4; }
+
+  .spread-track {
+    width: 100%;
+    height: 96px;
+    display: flex;
+    align-items: flex-end;
+    border-radius: 8px;
+    background: rgba(8, 13, 26, 0.4);
+    overflow: hidden;
+  }
+
+  .spread-bar {
+    width: 100%;
+    border-radius: 6px 6px 0 0;
+    background: linear-gradient(180deg, var(--color), color-mix(in srgb, var(--color) 60%, transparent));
+    box-shadow: 0 0 16px color-mix(in srgb, var(--color) 45%, transparent);
+    transition: height 0.55s cubic-bezier(0.16, 0.84, 0.44, 1);
+  }
+
+  .spread-level {
+    font-size: 12px;
+    font-weight: 800;
   }
 
   .results-section {
@@ -238,7 +328,7 @@
   .section-label {
     font-size: 11px;
     font-weight: 600;
-    color: #94a3b8;
+    color: var(--muted);
     text-transform: uppercase;
     letter-spacing: 0.06em;
   }
@@ -272,8 +362,8 @@
     width: 32px;
     height: 32px;
     border-radius: 50%;
-    background: #334155;
-    color: #e2e8f0;
+    background: linear-gradient(145deg, #273655, #1e2a45);
+    color: var(--text);
     font-size: 13px;
     font-weight: 700;
     display: flex;
@@ -285,7 +375,7 @@
   .player-name {
     font-size: 14px;
     font-weight: 600;
-    color: #e2e8f0;
+    color: var(--text);
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -294,9 +384,9 @@
   .fac-tag {
     font-size: 11px;
     font-weight: 600;
-    color: #3b82f6;
-    background: #172033;
-    border: 1px solid #1e3a5f;
+    color: var(--blue);
+    background: rgba(124, 169, 255, .09);
+    border: 1px solid rgba(124, 169, 255, .22);
     border-radius: 99px;
     padding: 2px 8px;
     text-transform: uppercase;
@@ -326,12 +416,12 @@
   .choice-name {
     font-size: 13px;
     font-weight: 700;
-    color: #e2e8f0;
+    color: var(--text);
   }
 
   .no-choice {
     font-size: 13px;
-    color: #94a3b8;
+    color: var(--muted);
     padding: 6px 14px;
   }
 
@@ -345,25 +435,25 @@
   }
 
   .consensus-box.success {
-    background: #052e16;
-    border-color: #22c55e;
+    background: var(--success-bg);
+    border-color: var(--success);
   }
 
   .consensus-box.warning {
-    background: #1c1404;
-    border-color: #eab308;
+    background: var(--warning-bg);
+    border-color: var(--warning);
   }
 
   .consensus-icon {
     font-size: 18px;
   }
 
-  .consensus-box.success .consensus-icon { color: #22c55e; }
-  .consensus-box.warning .consensus-icon { color: #eab308; }
+  .consensus-box.success .consensus-icon { color: var(--success); }
+  .consensus-box.warning .consensus-icon { color: var(--warning); }
 
   .consensus-text {
     font-size: 14px;
-    color: #e2e8f0;
+    color: var(--text);
     line-height: 1.4;
   }
 
@@ -395,10 +485,10 @@
 
   .saved-tag {
     padding: 2px 8px;
-    background: #052e16;
-    border: 1px solid #166534;
+    background: var(--success-bg);
+    border: 1px solid var(--success-strong);
     border-radius: 99px;
-    color: #86efac;
+    color: var(--success);
     font-size: 10px;
     font-weight: 800;
     text-transform: uppercase;
@@ -414,7 +504,7 @@
 
   .muted-note,
   .poster-help {
-    color: #94a3b8;
+    color: var(--muted);
   }
 
   .error-text {
@@ -436,7 +526,7 @@
   label {
     font-size: 12px;
     font-weight: 600;
-    color: #94a3b8;
+    color: var(--muted);
     text-transform: uppercase;
     letter-spacing: 0.06em;
   }
@@ -459,13 +549,13 @@
 
   select:focus-visible,
   textarea:focus-visible {
-    border-color: #60a5fa;
-    outline: 2px solid #60a5fa;
-    outline-offset: 2px;
+    border-color: var(--accent);
+    outline: 3px solid var(--accent-soft);
+    outline-offset: 1px;
   }
 
   .char-count {
-    color: #94a3b8;
+    color: var(--muted);
     font-size: 11px;
     text-align: right;
   }
@@ -482,11 +572,11 @@
 
   .btn-save {
     align-self: flex-end;
-    background: #22c55e;
-    color: #052e16;
+    background: var(--success);
+    color: var(--success-bg);
   }
 
-  .btn-save:hover:not(:disabled) { background: #16a34a; color: white; }
+  .btn-save:hover:not(:disabled) { background: var(--success-strong); color: white; }
 
   .poster-section {
     flex-direction: row;
@@ -502,8 +592,9 @@
   }
 
   .btn-poster {
-    background: #334155;
-    color: #e2e8f0;
+    background: rgba(255, 255, 255, .035);
+    border: 1px solid var(--border-strong);
+    color: var(--text);
   }
 
   .btn-poster.primary {
@@ -530,20 +621,20 @@
     cursor: pointer;
   }
 
-  .btn-again:hover { background: #2563eb; }
+  .btn-again:hover { background: var(--accent-hover); }
   .btn-again:active { transform: scale(0.97); }
 
   .btn-reset {
     padding: 10px 24px;
-    background: #334155;
-    color: #e2e8f0;
-    border: none;
+    background: rgba(255, 255, 255, .035);
+    color: var(--text);
+    border: 1px solid var(--border-strong);
     border-radius: 8px;
     font-size: 14px;
     font-weight: 600;
     cursor: pointer;
   }
 
-  .btn-reset:hover { background: #475569; }
+  .btn-reset:hover { background: rgba(255, 255, 255, .07); }
   .btn-reset:active { transform: scale(0.97); }
 </style>
